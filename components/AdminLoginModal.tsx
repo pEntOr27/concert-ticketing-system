@@ -17,10 +17,10 @@ export default function AdminLoginModal({ isOpen, initialTab = 'admin', onClose 
   const [activeTab, setActiveTab] = useState<'customer' | 'register' | 'admin'>(initialTab);
 
   // Login form state
-  const [email, setEmail] = useState('admin@concert.com');
-  const [password, setPassword] = useState('Admin@123456');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
 
-  // Register form state (Starts completely blank)
+  // Register form state
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
   const [phone, setPhone] = useState('');
@@ -286,8 +286,8 @@ export default function AdminLoginModal({ isOpen, initialTab = 'admin', onClose 
                       value={firstName}
                       onChange={(e) => setFirstName(e.target.value)}
                       required
-                      className="w-full px-3.5 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs focus:ring-2 focus:ring-sky-500 focus:bg-white focus:outline-none"
-                      placeholder="เช่น สมชาย"
+                      className="w-full px-3.5 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs focus:ring-2 focus:ring-sky-500 focus:bg-white focus:outline-none font-medium"
+                      placeholder="กรอกชื่อของคุณ"
                     />
                   </div>
                   <div>
@@ -297,8 +297,8 @@ export default function AdminLoginModal({ isOpen, initialTab = 'admin', onClose 
                       value={lastName}
                       onChange={(e) => setLastName(e.target.value)}
                       required
-                      className="w-full px-3.5 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs focus:ring-2 focus:ring-sky-500 focus:bg-white focus:outline-none"
-                      placeholder="เช่น ใจดี"
+                      className="w-full px-3.5 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs focus:ring-2 focus:ring-sky-500 focus:bg-white focus:outline-none font-medium"
+                      placeholder="กรอกนามสกุลของคุณ"
                     />
                   </div>
                 </div>
@@ -310,8 +310,8 @@ export default function AdminLoginModal({ isOpen, initialTab = 'admin', onClose 
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     required
-                    className="w-full px-3.5 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs focus:ring-2 focus:ring-sky-500 focus:bg-white focus:outline-none"
-                    placeholder="เช่น user@example.com"
+                    className="w-full px-3.5 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs focus:ring-2 focus:ring-sky-500 focus:bg-white focus:outline-none font-medium"
+                    placeholder="example@email.com"
                   />
                 </div>
 
@@ -323,8 +323,8 @@ export default function AdminLoginModal({ isOpen, initialTab = 'admin', onClose 
                       value={phone}
                       onChange={(e) => setPhone(e.target.value)}
                       required
-                      className="w-full px-3.5 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs focus:ring-2 focus:ring-sky-500 focus:bg-white focus:outline-none"
-                      placeholder="เช่น 0812345678"
+                      className="w-full px-3.5 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs focus:ring-2 focus:ring-sky-500 focus:bg-white focus:outline-none font-medium"
+                      placeholder="08X-XXX-XXXX"
                     />
                   </div>
                   <div>
@@ -348,8 +348,8 @@ export default function AdminLoginModal({ isOpen, initialTab = 'admin', onClose 
                     onChange={(e) => setPassword(e.target.value)}
                     required
                     minLength={8}
-                    className="w-full px-3.5 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs focus:ring-2 focus:ring-sky-500 focus:bg-white focus:outline-none"
-                    placeholder="อย่างน้อย 8 ตัวอักษร"
+                    className="w-full px-3.5 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs focus:ring-2 focus:ring-sky-500 focus:bg-white focus:outline-none font-medium"
+                    placeholder="••••••••"
                   />
                 </div>
               </div>
