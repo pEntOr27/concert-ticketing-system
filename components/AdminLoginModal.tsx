@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { X, Lock, KeyRound, UserCheck, ShieldAlert, Mail, UserPlus, LogIn, Camera } from 'lucide-react';
+import { X, Lock, KeyRound, UserCheck, ShieldAlert, Mail, UserPlus, LogIn } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import FaceScanModal from './FaceScanModal';
 import OtpModal from './OtpModal';
@@ -20,10 +20,10 @@ export default function AdminLoginModal({ isOpen, initialTab = 'admin', onClose 
   const [email, setEmail] = useState('admin@concert.com');
   const [password, setPassword] = useState('Admin@123456');
 
-  // Register form state
-  const [firstName, setFirstName] = useState('ณัฐวุฒิ');
-  const [lastName, setLastName] = useState('สุขสวัสดิ์');
-  const [phone, setPhone] = useState('0896629567');
+  // Register form state (Starts completely blank)
+  const [firstName, setFirstName] = useState('');
+  const [lastName, setLastName] = useState('');
+  const [phone, setPhone] = useState('');
   const [nationality, setNationality] = useState('THAI');
 
   const [loading, setLoading] = useState(false);
@@ -46,12 +46,11 @@ export default function AdminLoginModal({ isOpen, initialTab = 'admin', onClose 
         setEmail('somchai@gmail.com');
         setPassword('Customer@123456');
       } else if (initialTab === 'register') {
-        const rand = Math.floor(1000 + Math.random() * 9000);
-        setFirstName('ณัฐวุฒิ');
-        setLastName('สุขสวัสดิ์');
-        setEmail(`nattawut${rand}@gmail.com`);
-        setPhone(`089${rand}567`);
-        setPassword('Customer@123456');
+        setFirstName('');
+        setLastName('');
+        setEmail('');
+        setPhone('');
+        setPassword('');
       }
     }
   }, [isOpen, initialTab]);
@@ -69,12 +68,11 @@ export default function AdminLoginModal({ isOpen, initialTab = 'admin', onClose 
       setEmail('somchai@gmail.com');
       setPassword('Customer@123456');
     } else if (tab === 'register') {
-      const rand = Math.floor(1000 + Math.random() * 9000);
-      setFirstName('ณัฐวุฒิ');
-      setLastName('สุขสวัสดิ์');
-      setEmail(`nattawut${rand}@gmail.com`);
-      setPhone(`089${rand}567`);
-      setPassword('Customer@123456');
+      setFirstName('');
+      setLastName('');
+      setEmail('');
+      setPhone('');
+      setPassword('');
     }
   };
 
@@ -289,7 +287,7 @@ export default function AdminLoginModal({ isOpen, initialTab = 'admin', onClose 
                       onChange={(e) => setFirstName(e.target.value)}
                       required
                       className="w-full px-3.5 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs focus:ring-2 focus:ring-sky-500 focus:bg-white focus:outline-none"
-                      placeholder="ณัฐวุฒิ"
+                      placeholder="เช่น สมชาย"
                     />
                   </div>
                   <div>
@@ -300,7 +298,7 @@ export default function AdminLoginModal({ isOpen, initialTab = 'admin', onClose 
                       onChange={(e) => setLastName(e.target.value)}
                       required
                       className="w-full px-3.5 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs focus:ring-2 focus:ring-sky-500 focus:bg-white focus:outline-none"
-                      placeholder="สุขสวัสดิ์"
+                      placeholder="เช่น ใจดี"
                     />
                   </div>
                 </div>
@@ -313,7 +311,7 @@ export default function AdminLoginModal({ isOpen, initialTab = 'admin', onClose 
                     onChange={(e) => setEmail(e.target.value)}
                     required
                     className="w-full px-3.5 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs focus:ring-2 focus:ring-sky-500 focus:bg-white focus:outline-none"
-                    placeholder="nattawut@gmail.com"
+                    placeholder="เช่น user@example.com"
                   />
                 </div>
 
@@ -326,7 +324,7 @@ export default function AdminLoginModal({ isOpen, initialTab = 'admin', onClose 
                       onChange={(e) => setPhone(e.target.value)}
                       required
                       className="w-full px-3.5 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs focus:ring-2 focus:ring-sky-500 focus:bg-white focus:outline-none"
-                      placeholder="0896629567"
+                      placeholder="เช่น 0812345678"
                     />
                   </div>
                   <div>
@@ -351,7 +349,7 @@ export default function AdminLoginModal({ isOpen, initialTab = 'admin', onClose 
                     required
                     minLength={8}
                     className="w-full px-3.5 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs focus:ring-2 focus:ring-sky-500 focus:bg-white focus:outline-none"
-                    placeholder="••••••••"
+                    placeholder="อย่างน้อย 8 ตัวอักษร"
                   />
                 </div>
               </div>
