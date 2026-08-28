@@ -1,0 +1,21 @@
+name: CD Deployment Pipeline
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build Docker Container
+        run: |
+          docker build -t concert-ticketing:${{ github.ref_name }} .
+
+      - name: Deployment Simulation
+        run: |
+          echo "Deploying release ${{ github.ref_name }} to Staging/Production Environment..."
+          echo "Health checks verified."

@@ -1,0 +1,363 @@
+datasource db {
+  provider = "sqlite"
+  url      = "file:./dev.db"
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model User {
+  id              String      @id @default(uuid())
+  uuid            String      @unique @default(uuid())
+  firstName       String      @map("first_name")
+  lastName        String      @map("last_name")
+  email           String      @unique
+  phone           String      @unique
+  nationality     String      @default("THAI")
+  passwordHash    String      @map("password_hash")
+  status          String      @default("ACTIVE")
+  emailVerifiedAt DateTime?   @map("email_verified_at")
+  phoneVerifiedAt DateTime?   @map("phone_verified_at")
+  faceVerifiedAt  DateTime?   @map("face_verified_at")
+  createdAt       DateTime    @default(now()) @map("created_at")
+  updatedAt       DateTime    @updatedAt @map("updated_at")
+
+  userRoles     UserRole[]
+  sessions      Session[]
+  loginHistories LoginHistory[]
+  bookings      Booking[]
+  seatHolds     SeatHold[]
+  tickets       Ticket[]
+  queueEntries  QueueEntry[]
+  auditLogs     AuditLog[]     @relation("AuditActor")
+  notifications Notification[]
+  securityEvents SecurityEvent[]
+
+  @@map("users")
+}
+
+model Role {
+  id        String     @id @default(uuid())
+  name      String     @unique // customer, admin, super_admin
+  userRoles UserRole[]
+
+  @@map("roles")
+}
+
+model UserRole {
+  id     String @id @default(uuid())
+  userId String @map("user_id")
+  roleId String @map("role_id")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  role Role @relation(fields: [roleId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, roleId])
+  @@map("user_roles")
+}
+
+model Session {
+  id        String   @id @default(uuid())
+  token     String   @unique
+  userId    String   @map("user_id")
+  expiresAt DateTime @map("expires_at")
+  ipAddress String?  @map("ip_address")
+  userAgent String?  @map("user_agent")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("sessions")
+}
+
+model LoginHistory {
+  id            String   @id @default(uuid())
+  userId        String?  @map("user_id")
+  emailAttempted String? @map("email_attempted")
+  ipAddress     String   @map("ip_address")
+  browser       String?
+  userAgent     String?  @map("user_agent")
+  status        String   // SUCCESS, FAILED
+  failureReason String?  @map("failure_reason")
+  createdAt     DateTime @default(now()) @map("created_at")
+
+  user User? @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  @@map("login_history")
+}
+
+model Event {
+  id          String   @id @default(uuid())
+  name        String
+  artist      String
+  description String
+  venue       String
+  eventDate   DateTime @map("event_date")
+  startTime   String   @map("start_time")
+  endTime     String   @map("end_time")
+  posterUrl   String   @map("poster_url")
+  status      String   @default("UPCOMING")
+  capacity    Int      @default(1000)
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  zones    EventZone[]
+  bookings Booking[]
+  queues   Queue[]
+
+  @@map("events")
+}
+
+model EventZone {
+  id          String @id @default(uuid())
+  eventId     String @map("event_id")
+  name        String
+  price       Float
+  capacity    Int
+  rowPattern  String @map("row_pattern")  // e.g. A-Z
+  seatPattern String @map("seat_pattern") // e.g. 1-20
+
+  event Event  @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  seats Seat[]
+
+  @@map("event_zones")
+}
+
+model Seat {
+  id         String @id @default(uuid())
+  zoneId     String @map("zone_id")
+  seatNumber String @map("seat_number") // e.g. A01
+  rowName    String @map("row_name")    // e.g. A
+  seatIndex  Int    @map("seat_index")  // e.g. 1
+  status     String @default("AVAILABLE")
+
+  zone         EventZone     @relation(fields: [zoneId], references: [id], onDelete: Cascade)
+  seatHolds    SeatHold[]
+  bookingItems BookingItem[]
+  tickets      Ticket[]
+
+  @@unique([zoneId, seatNumber])
+  @@map("seats")
+}
+
+model Promotion {
+  id            String   @id @default(uuid())
+  code          String   @unique
+  discountType  String   @map("discount_type")
+  discountValue Float    @map("discount_value")
+  startDate     DateTime @map("start_date")
+  endDate       DateTime @map("end_date")
+  usageLimit    Int      @default(100) @map("usage_limit")
+  timesUsed     Int      @default(0) @map("times_used")
+  status        Boolean  @default(true)
+
+  bookings Booking[]
+
+  @@map("promotions")
+}
+
+model Queue {
+  id           String   @id @default(uuid())
+  eventId      String   @map("event_id")
+  totalWaiting Int      @default(0) @map("total_waiting")
+  status       String   @default("ACTIVE")
+  createdAt    DateTime @default(now()) @map("created_at")
+
+  event        Event        @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  queueEntries QueueEntry[]
+
+  @@map("queues")
+}
+
+model QueueEntry {
+  id          String    @id @default(uuid())
+  queueId     String    @map("queue_id")
+  userId      String    @map("user_id")
+  queueNumber Int       @map("queue_number")
+  status      String    @default("WAITING")
+  joinedAt    DateTime  @default(now()) @map("joined_at")
+  validUntil  DateTime? @map("valid_until")
+
+  queue Queue @relation(fields: [queueId], references: [id], onDelete: Cascade)
+  user  User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("queue_entries")
+}
+
+model Booking {
+  id             String    @id @default(uuid())
+  bookingNumber  String    @unique @map("booking_number")
+  userId         String    @map("user_id")
+  eventId        String    @map("event_id")
+  promotionId    String?   @map("promotion_id")
+  totalAmount    Float     @map("total_amount")
+  discountAmount Float     @default(0) @map("discount_amount")
+  finalAmount    Float     @map("final_amount")
+  status         String    @default("PENDING")
+  expiresAt      DateTime? @map("expires_at")
+  createdAt      DateTime  @default(now()) @map("created_at")
+  updatedAt      DateTime  @updatedAt @map("updated_at")
+
+  user         User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  event        Event         @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  promotion    Promotion?    @relation(fields: [promotionId], references: [id], onDelete: SetNull)
+  bookingItems BookingItem[]
+  payments     Payment[]
+  tickets      Ticket[]
+  seatHolds    SeatHold[]
+
+  @@map("bookings")
+}
+
+model BookingItem {
+  id        String @id @default(uuid())
+  bookingId String @map("booking_id")
+  seatId    String @map("seat_id")
+  price     Float
+
+  booking Booking @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+  seat    Seat    @relation(fields: [seatId], references: [id], onDelete: Cascade)
+
+  @@map("booking_items")
+}
+
+model SeatHold {
+  id        String   @id @default(uuid())
+  seatId    String   @map("seat_id")
+  userId    String   @map("user_id")
+  bookingId String?  @map("booking_id")
+  holdToken String   @unique @map("hold_token")
+  expiresAt DateTime @map("expires_at")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  seat    Seat     @relation(fields: [seatId], references: [id], onDelete: Cascade)
+  user    User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  booking Booking? @relation(fields: [bookingId], references: [id], onDelete: SetNull)
+
+  @@map("seat_holds")
+}
+
+model Payment {
+  id            String   @id @default(uuid())
+  bookingId     String   @map("booking_id")
+  paymentMethod String   @map("payment_method") // CREDIT_CARD, PROMPTPAY, BANK_TRANSFER
+  amount        Float
+  status        String   @default("PENDING")
+  transactionId String   @unique @map("transaction_id")
+  qrPayload     String?  @map("qr_payload")
+  createdAt     DateTime @default(now()) @map("created_at")
+  updatedAt     DateTime @updatedAt @map("updated_at")
+
+  booking Booking @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+
+  @@map("payments")
+}
+
+model Ticket {
+  id         String   @id @default(uuid())
+  ticketCode String   @unique @map("ticket_code")
+  bookingId  String   @map("booking_id")
+  seatId     String   @map("seat_id")
+  userId     String   @map("user_id")
+  qrData     String   @map("qr_data")
+  barcode    String
+  status     String   @default("ISSUED")
+  createdAt  DateTime @default(now()) @map("created_at")
+
+  booking TicketScan[]
+  seat    Seat         @relation(fields: [seatId], references: [id], onDelete: Cascade)
+  user    User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  parent  Booking      @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+
+  @@map("tickets")
+}
+
+model TicketScan {
+  id        String   @id @default(uuid())
+  ticketId  String   @map("ticket_id")
+  scannedBy String   @map("scanned_by")
+  scannedAt DateTime @default(now()) @map("scanned_at")
+  location  String?
+
+  ticket Ticket @relation(fields: [ticketId], references: [id], onDelete: Cascade)
+
+  @@map("ticket_scans")
+}
+
+model SecurityEvent {
+  id        String   @id @default(uuid())
+  ipAddress String   @map("ip_address")
+  userId    String?  @map("user_id")
+  eventType String   @map("event_type")
+  reason    String
+  userAgent String?  @map("user_agent")
+  endpoint  String?
+  createdAt DateTime @default(now()) @map("created_at")
+
+  user User? @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  @@map("security_events")
+}
+
+model BlockedIp {
+  id        String    @id @default(uuid())
+  ipAddress String    @unique @map("ip_address")
+  reason    String
+  expiresAt DateTime? @map("expires_at")
+  status    String    @default("ACTIVE")
+  createdAt DateTime  @default(now()) @map("created_at")
+
+  @@map("blocked_ips")
+}
+
+model RateLimitEvent {
+  id        String   @id @default(uuid())
+  ipAddress String   @map("ip_address")
+  endpoint  String
+  count     Int      @default(1)
+  timestamp DateTime @default(now())
+
+  @@map("rate_limit_events")
+}
+
+model AuditLog {
+  id          String   @id @default(uuid())
+  actorId     String?  @map("actor_id")
+  action      String
+  resource    String
+  resourceId  String?  @map("resource_id")
+  ipAddress   String   @map("ip_address")
+  userAgent   String?  @map("user_agent")
+  payloadJson String?  @map("payload_json")
+  createdAt   DateTime @default(now()) @map("created_at")
+
+  actor User? @relation("AuditActor", fields: [actorId], references: [id], onDelete: SetNull)
+
+  @@map("audit_logs")
+}
+
+model Notification {
+  id        String   @id @default(uuid())
+  userId    String   @map("user_id")
+  title     String
+  message   String
+  isRead    Boolean  @default(false) @map("is_read")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("notifications")
+}
+
+model OtpVerification {
+  id         String   @id @default(uuid())
+  phone      String
+  email      String
+  otpCode    String   @map("otp_code")
+  isVerified Boolean  @default(false) @map("is_verified")
+  expiresAt  DateTime @map("expires_at")
+  createdAt  DateTime @default(now()) @map("created_at")
+
+  @@map("otp_verifications")
+}
