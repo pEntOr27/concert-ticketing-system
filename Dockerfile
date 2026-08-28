@@ -1,9 +1,9 @@
 # Production Dockerfile for Railway.app Deployment
 FROM node:20-alpine AS base
 
-# Step 1: Install dependencies
+# Step 1: Install dependencies & OpenSSL for Alpine
 FROM base AS deps
-RUN apk add --no-cache libc6-compat
+RUN apk add --no-cache openssl ca-certificates libc6-compat
 WORKDIR /app
 
 COPY package.json package-lock.json* ./
@@ -25,6 +25,7 @@ RUN npm run build
 
 # Step 3: Production runner
 FROM base AS runner
+RUN apk add --no-cache openssl ca-certificates libc6-compat
 WORKDIR /app
 
 ENV NODE_ENV=production
