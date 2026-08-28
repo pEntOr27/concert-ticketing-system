@@ -5,7 +5,8 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
-    "start": "next start",
+    "start": "next start -p ${PORT:-3000}",
+    "railway:start": "npx prisma db push && npm run db:seed && next start -p ${PORT:-3000}",
     "lint": "next lint",
     "tsc": "tsc --noEmit",
     "db:push": "prisma db push",
