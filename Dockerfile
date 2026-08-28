@@ -29,6 +29,8 @@ WORKDIR /app
 
 ENV NODE_ENV=production
 ENV NEXT_TELEMETRY_DISABLED=1
+# Default fallback DATABASE_URL if not set in Railway variables
+ENV DATABASE_URL="file:./dev.db"
 
 COPY --from=builder /app/public ./public
 COPY --from=builder /app/.next ./.next
