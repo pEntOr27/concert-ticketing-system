@@ -7,7 +7,7 @@ RUN apk add --no-cache openssl ca-certificates libc6-compat
 WORKDIR /app
 
 COPY package.json package-lock.json* ./
-RUN npm ci
+RUN npm install
 
 # Step 2: Build source
 FROM base AS builder
